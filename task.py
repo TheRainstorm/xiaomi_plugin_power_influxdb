@@ -26,7 +26,7 @@ def read_env():
     except KeyError as e:
         print(f"环境变量缺失: {e}")
         raise RuntimeError("请确保所有环境变量已设置")
-    print(f"读取环境变量: DEVICE_IP={DEVICE_IP}, DEVICE_TOKEN={DEVICE_TOKEN[:3]}xxx{DEVICE_TOKEN[-3:]}, INFLUX_HOST={INFLUX_HOST}, INFLUX_PORT={INFLUX_PORT}, INFLUX_USER={INFLUX_USER}, INFLUX_DB={INFLUX_DB}")
+    print(f"读取环境变量: DEVICE_IP={DEVICE_IP}, DEVICE_TOKEN={DEVICE_TOKEN[:5]}xxx{DEVICE_TOKEN[-5:]}, INFLUX_HOST={INFLUX_HOST}, INFLUX_PORT={INFLUX_PORT}, INFLUX_USER={INFLUX_USER}, INFLUX_DB={INFLUX_DB}")
 
 def setup_device():
     global dev
