@@ -23,10 +23,10 @@ MEASUREMENT= ""
 DEBUG = False  # 是否开启调试模式
 
 def read_env():
-    global DEVICE_IP, DEVICE_TOKEN, INFLUX_HOST, INFLUX_PORT, INFLUX_USER, INFLUX_PASS, INFLUX_DB, DEBUG, MEASUREMENT, DEVICE_NAMES
+    global DEVICE_IPS, DEVICE_TOKENS, INFLUX_HOST, INFLUX_PORT, INFLUX_USER, INFLUX_PASS, INFLUX_DB, DEBUG, MEASUREMENT, DEVICE_NAMES
     try:
-        DEVICE_IP = os.environ["DEVICE_IP"]
-        DEVICE_TOKEN = os.environ["DEVICE_TOKEN"]
+        DEVICE_IPS = os.environ["DEVICE_IPS"]
+        DEVICE_TOKENS = os.environ["DEVICE_TOKENS"]
         DEVICE_NAMES = os.environ["DEVICE_NAMES"]
         INFLUX_HOST = os.environ["INFLUX_HOST"]
         INFLUX_PORT = int(os.environ["INFLUX_PORT"])
@@ -38,18 +38,18 @@ def read_env():
     except KeyError as e:
         print(f"环境变量缺失: {e}")
         raise RuntimeError("请确保所有环境变量已设置")
-    print(f"读取环境变量: DEVICE_IP={DEVICE_IP}, DEVICE_TOKEN={DEVICE_TOKEN[:5]}xxx{DEVICE_TOKEN[-5:]}, INFLUX_HOST={INFLUX_HOST}, INFLUX_PORT={INFLUX_PORT}, INFLUX_USER={INFLUX_USER}, INFLUX_DB={INFLUX_DB}, DEBUG={DEBUG}, MEASUREMENT={MEASUREMENT}, DEVICE_NAMES={DEVICE_NAMES}")
+    print(f"读取环境变量: DEVICE_IPS={DEVICE_IPS}, INFLUX_HOST={INFLUX_HOST}, INFLUX_PORT={INFLUX_PORT}, INFLUX_USER={INFLUX_USER}, INFLUX_DB={INFLUX_DB}, DEBUG={DEBUG}, MEASUREMENT={MEASUREMENT}, DEVICE_NAMES={DEVICE_NAMES}")
 
 def setup_devices():
     global dev_list, dev_names
     ip_list = DEVICE_IPS.split(",")
     token_list = DEVICE_TOKENS.split(",")
     dev_names = DEVICE_NAMES.split(",")
-    for ip, token in zip(ip_list, token_list):
+    for ip, token, dev_name in zip(ip_list, token_list, dev_names):
         if ip and token:
             dev = DeviceFactory.create(ip.strip(), token.strip())
             dev_list.append(dev)
-            print(f"设备已添加: {ip.strip()} (Token: {token.strip()[:5]}xxx{token.strip()[-5:]})")
+            print(f"设备已添加: {dev_name} {ip.strip()} (Token: {token.strip()[:5]}xxx{token.strip()[-5:]})")
 
 def write_to_influxdb(power, dev_name):
     json_body = [{
@@ -59,11 +59,11 @@ def write_to_influxdb(power, dev_name):
     }]
     influx_client.write_points(json_body)
     if DEBUG:
-        print(f"写入数据: {power} W")
+        print(f"{dev_name}: {power} W")
 
 def task():
-    global is_init, dev_list
-    if is_init is None:
+    global is_init, dev_list, influx_client
+    if not is_init:
         print("设备未初始化，正在读取环境变量并设置设备...")
         read_env()
         print("环境变量读取成功，正在初始化设备...")
