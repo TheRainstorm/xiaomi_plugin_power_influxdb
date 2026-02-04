@@ -59,6 +59,11 @@ services:
     network_mode: host
     env_file: stack.env
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"   # 单个日志文件最大 1MB
+        max-file: "1"     # 最多保留 1 个文件
 ```
 - 启动
 
