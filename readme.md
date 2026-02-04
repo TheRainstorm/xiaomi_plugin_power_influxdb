@@ -97,6 +97,43 @@ foo: 199 W
 
 ## 其它
 
+
+### grafana + influxdb 部署
+
+同时部署 grafana 和 influxdb，请按需修改环境变量和数据卷路径
+
+```yaml
+version: '3'
+services:
+  influxdb:
+    image: influxdb:1.8  # 使用 1.x 版本兼容简单
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - /var/lib/docker/docker_data/influxdb/data:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=xxx
+      - INFLUXDB_ADMIN_USER=xxx
+      - INFLUXDB_ADMIN_PASSWORD=xxx
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/lib/docker/docker_data/grafana/data:/var/lib/grafana  # 配置持久化
+      - /var/lib/docker/docker_data/grafana/etc/grafana/grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      - GF_SECURITY_ADMIN_USER=xxx
+      - GF_SECURITY_ADMIN_PASSWORD=xxx
+    user: "0:0"
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+```
+
 ### grafana 查询命令
 
 ```shell
@@ -105,7 +142,7 @@ SELECT mean("value") FROM "power_consumption" WHERE $timeFilter GROUP BY time(30
 
 ### 跨网段使用 miio
 
-通过 wireguard 三层组网时，会遇到可以 ping 通小米智能插座，但是 miio 无法连接设备的报错：
+通过 wireguard 三层组网时，虽然可以 ping 通插座，但是会遇到 miio 无法连接设备的报错：
 
 ```shell
 miio.exceptions.DeviceException: Unable to discover the device 
