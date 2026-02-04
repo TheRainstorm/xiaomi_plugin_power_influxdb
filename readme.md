@@ -31,9 +31,7 @@ Feature:
 pip install -r requirements.txt
 
 # 导入环境变量
-set -a
-source .env
-set +a
+set -a && source .env && set +a
 
 python main.py
 ```
@@ -65,6 +63,7 @@ services:
         max-size: "1m"   # 单个日志文件最大 1MB
         max-file: "1"     # 最多保留 1 个文件
 ```
+
 - 启动
 
 ```shell
