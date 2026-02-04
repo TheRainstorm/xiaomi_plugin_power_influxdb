@@ -1,0 +1,14 @@
+[project]
+name = "xiaomi-plugin-power"
+version = "0.2.0"
+description = "Xiaomi smart plug power monitor"
+readme = "readme.md"
+requires-python = ">=3.12"
+dependencies = [
+    "APScheduler==3.11.0",
+    "influxdb==5.3.2",
+    "python-miio @ git+https://github.com/rytilahti/python-miio.git@0aa4df3ab1e47d564c8312016fbcfb3a9fc06c6c",
+]
+
+[tool.uv]
+package = false
